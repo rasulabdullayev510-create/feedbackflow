@@ -24,7 +24,7 @@ function getSurveyUrl(token) { return `${BASE_URL}/survey?token=${token}`; }
 
 async function sendSMS(to, customerName, surveyUrl) {
   return twilioClient.messages.create({
-    body: `Hi ${customerName}! Thanks for visiting us. How'd we do? Quick 30-sec survey: ${surveyUrl}`,
+    body: `Hi ${customerName}! Thanks for choosing Ski Doc Calgary! Take a 30-second survey and drop us a review to get $10 off your next tuneup! ${surveyUrl}`,
     from: TWILIO_PHONE_NUMBER,
     to,
   });
