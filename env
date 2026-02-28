@@ -1,0 +1,9 @@
+# ── Twilio (SMS) ──────────────────────────────────────────────
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_auth_token_here
+TWILIO_PHONE_NUMBER=+1XXXXXXXXXX
+
+# ── App Config ────────────────────────────────────────────────
+BASE_URL=http://localhost:3001
+GOOGLE_REVIEW_URL=https://g.page/r/XXXXXXXXX/review
+PORT=3001
