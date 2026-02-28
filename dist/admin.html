@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FeedbackFlow — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --card: #111111;
+      --border: rgba(255,255,255,0.07);
+      --accent: #f5a623;
+      --accent2: #ff6b35;
+      --text: #f0ece4;
+      --muted: #666;
+      --success: #2ecc71;
+      --error: #e74c3c;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      background-image:
+        radial-gradient(ellipse at 10% 0%, rgba(245,166,35,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 100%, rgba(255,107,53,0.06) 0%, transparent 50%);
+    }
+
+    header {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .badge {
+      background: rgba(245,166,35,0.1);
+      border: 1px solid rgba(245,166,35,0.2);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 560px;
+      margin-bottom: 20px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input:focus {
+      border-color: rgba(245,166,35,0.4);
+      background: rgba(255,255,255,0.06);
+    }
+
+    input::placeholder { color: #444; }
+
+    .btn {
+      width: 100%;
+      margin-top: 8px;
+      background: var(--accent);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:hover { background: #f7b843; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,166,35,0.25); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn .spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #0a0a0a;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin: 0 auto;
+    }
+
+    .btn.loading .btn-text { display: none; }
+    .btn.loading .spinner { display: block; }
+
+    .toast {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: fadeUp 0.3s ease;
+    }
+
+    .toast.success { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.2); color: var(--success); }
+    .toast.error { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.2); color: var(--error); }
+    .toast.show { display: block; }
+
+    /* Responses table */
+    .responses-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .response-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .rating-pill {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .rating-1, .rating-2, .rating-3 { background: rgba(231,76,60,0.15); color: #e74c3c; }
+    .rating-4, .rating-5 { background: rgba(46,204,113,0.15); color: #2ecc71; }
+
+    .response-body { flex: 1; }
+    .response-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .response-feedback { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 6px; }
+    .response-meta { font-size: 11px; color: #444; }
+
+    .empty { text-align: center; padding: 32px; color: var(--muted); font-size: 14px; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    FeedbackFlow
+  </div>
+  <div class="badge">Admin</div>
+</header>
+
+<!-- Add Customer -->
+<div class="card">
+  <div class="card-title">Add Customer</div>
+  <p class="card-sub">Enter their details after completing their service. They'll automatically receive a text in 24 hours.</p>
+
+  <div class="field">
+    <label>Customer Name</label>
+    <input type="text" id="name" placeholder="e.g. John Smith" />
+  </div>
+  <div class="field">
+    <label>Phone Number</label>
+    <input type="tel" id="phone" placeholder="+16041234567" />
+  </div>
+
+  <button class="btn" id="addBtn" onclick="addCustomer()">
+    <span class="btn-text">Add Customer & Schedule Text</span>
+    <div class="spinner"></div>
+  </button>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<!-- Stats + Feedback -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Feedback</div>
+      <p class="card-sub" style="margin-bottom:0">Private responses from unhappy customers.</p>
+    </div>
+    <button class="refresh-btn" onclick="loadFeedback()">↻ Refresh</button>
+  </div>
+
+  <div class="stats-row" id="stats">
+    <div class="stat"><div class="stat-num">—</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num">—</div><div class="stat-label">Avg Rating</div></div>
+    <div class="stat"><div class="stat-num">—</div><div class="stat-label">Negative</div></div>
+  </div>
+
+  <div class="responses-list" id="responses">
+    <div class="empty">Loading feedback...</div>
+  </div>
+</div>
+
+<script>
+  // ── IMPORTANT: Change this to your Railway URL ──
+  const API = "https://feedbackflow-production-c92f.up.railway.app";
+
+  async function addCustomer() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const btn = document.getElementById("addBtn");
+    const toast = document.getElementById("toast");
+
+    if (!name || !phone) {
+      showToast("Please fill in both name and phone number.", "error");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add("loading");
+
+    try {
+      const res = await fetch(`${API}/api/customers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`✓ ${name} added! They'll receive a text in 24 hours.`, "success");
+        document.getElementById("name").value = "";
+        document.getElementById("phone").value = "";
+      } else {
+        showToast("Something went wrong. Try again.", "error");
+      }
+    } catch (e) {
+      showToast("Can't connect to server. Check your internet.", "error");
+    }
+
+    btn.disabled = false;
+    btn.classList.remove("loading");
+  }
+
+  function showToast(msg, type) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove("show"), 4000);
+  }
+
+  async function loadFeedback() {
+    try {
+      const [statsRes, responsesRes] = await Promise.all([
+        fetch(`${API}/api/stats`),
+        fetch(`${API}/api/responses`),
+      ]);
+      const stats = await statsRes.json();
+      const responses = await responsesRes.json();
+
+      const negative = responses.filter(r => r.rating <= 3).length;
+      document.getElementById("stats").innerHTML = `
+        <div class="stat"><div class="stat-num">${stats.total}</div><div class="stat-label">Total</div></div>
+        <div class="stat"><div class="stat-num">${stats.average || "—"}</div><div class="stat-label">Avg Rating</div></div>
+        <div class="stat"><div class="stat-num">${negative}</div><div class="stat-label">Negative</div></div>
+      `;
+
+      const negatives = responses.filter(r => r.rating <= 3);
+      if (negatives.length === 0) {
+        document.getElementById("responses").innerHTML = '<div class="empty">No negative feedback yet. 🎉</div>';
+        return;
+      }
+
+      document.getElementById("responses").innerHTML = negatives.map(r => `
+        <div class="response-item">
+          <div class="rating-pill rating-${r.rating}">${r.rating}★</div>
+          <div class="response-body">
+            <div class="response-name">${r.name || "Unknown"}</div>
+            <div class="response-feedback">${r.feedback || "No written feedback."}</div>
+            <div class="response-meta">${r.phone || ""} · ${new Date(r.submitted_at).toLocaleDateString()}</div>
+          </div>
+        </div>
+      `).join("");
+    } catch(e) {
+      document.getElementById("responses").innerHTML = '<div class="empty">Could not load feedback.</div>';
+    }
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter") addCustomer();
+  });
+
+  loadFeedback();
+</script>
+
+</body>
+</html>
