@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID";
+const GOOGLE_REVIEW_URL = "https://g.page/r/CbgyguKR2ha2EAE/review";
 
 const starLabels = ["", "Terrible", "Poor", "Okay", "Good", "Excellent"];
 
