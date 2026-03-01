@@ -127,6 +127,7 @@ export default function SurveyApp() {
             >
               Submit Feedback
             </button>
+            <p style={{marginTop: "16px", textAlign: "center", fontSize: "12px", color: "rgba(255,255,255,0.2)"}}>You can also <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" style={{color: "rgba(245,166,35,0.5)", textDecoration: "underline"}}>leave a Google review</a> if you prefer.</p>
           </>
         )}
 
