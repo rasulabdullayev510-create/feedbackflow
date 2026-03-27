@@ -5,6 +5,7 @@ const twilio = require("twilio");
 const crypto = require("crypto");
 const path = require("path");
 const cron = require("node-cron");
+const nodemailer = require("nodemailer");
 
 require("dotenv").config();
 
@@ -16,8 +17,12 @@ const adapter = new FileSync("db.json");
 const db = low(adapter);
 db.defaults({ customers: [], responses: [] }).write();
 
-const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, BASE_URL, PORT = 3001 } = process.env;
+const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER, BASE_URL, PORT = 3001, GMAIL_USER, GMAIL_PASS } = process.env;
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+const mailer = GMAIL_USER && GMAIL_PASS ? nodemailer.createTransport({
+  service: "gmail", auth: { user: GMAIL_USER, pass: GMAIL_PASS }
+}) : null;
 
 function generateToken() { return crypto.randomBytes(16).toString("hex"); }
 function getSurveyUrl(token) { return `${BASE_URL}/survey?token=${token}`; }
@@ -43,10 +48,23 @@ app.post("/api/customers", (req, res) => {
   res.json({ success: true, token: customer.token, survey_url: getSurveyUrl(customer.token) });
 });
 
-app.post("/api/submit-feedback", (req, res) => {
+app.post("/api/submit-feedback", async (req, res) => {
   const { token, rating, feedback } = req.body;
   if (!token || !rating) return res.status(400).json({ error: "token and rating required" });
+  const customer = db.get("customers").find({ token }).value() || {};
   db.get("responses").push({ id: Date.now(), token, rating, feedback: feedback || null, submitted_at: new Date().toISOString() }).write();
+
+  if (Number(rating) <= 3 && mailer) {
+    try {
+      await mailer.sendMail({
+        from: GMAIL_USER,
+        to: GMAIL_USER,
+        subject: `⚠️ ${rating}-star feedback from ${customer.name || "a customer"}`,
+        text: `Name: ${customer.name || "Unknown"}\nPhone: ${customer.phone || "Unknown"}\nRating: ${rating}/5\n\nFeedback:\n${feedback || "(no comment)"}`,
+      });
+    } catch(err) { console.error("Email failed:", err.message); }
+  }
+
   res.json({ success: true });
 });
 
